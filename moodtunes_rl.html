@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoodTunes - AI Powered Music Recommendation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#f8f9fa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.nav-bar{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);padding:20px 0;position:sticky;top:0;z-index:1000}
+.nav-content{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 20px}
+.nav-links{display:flex;gap:40px;list-style:none}
+.nav-links a{color:#333;text-decoration:none;font-weight:500;transition:color .3s;cursor:pointer}
+.nav-links a:hover{color:#667eea}
+.gradient-text{background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-section{background:linear-gradient(135deg,rgba(102,126,234,.95),rgba(118,75,162,.95)),url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1200&q=80') center/cover;color:#fff;padding:80px 20px;text-align:center;min-height:500px;display:flex;flex-direction:column;justify-content:center}
+.hero-image{max-width:500px;margin:30px auto 0;animation:float 3s ease-in-out infinite;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+.about-section{background:linear-gradient(135deg,#f5f7fa,#c3cfe2);padding:80px 20px}
+.contact-section{background:linear-gradient(135deg,rgba(118,75,162,.95),rgba(102,126,234,.95));color:#fff;padding:80px 20px}
+.contact-card{background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border-radius:16px;padding:30px;text-align:center;border:1px solid rgba(255,255,255,.2);transition:transform .3s}
+.contact-card:hover{transform:translateY(-5px)}
+.service-card{background:#fff;border-radius:16px;padding:30px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.08);transition:transform .3s,box-shadow .3s;cursor:pointer}
+.service-card:hover{transform:translateY(-8px);box-shadow:0 12px 24px rgba(0,0,0,.15)}
+.service-image{width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:20px}
+.mood-btn{transition:transform .2s,box-shadow .2s}
+.mood-btn:hover{transform:scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,.15)}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:1.5rem;color:#667eea}
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+<div class="nav-content">
+<h1 class="text-2xl font-bold gradient-text">🎵 MoodTunes</h1>
+<ul class="nav-links">
+<li><a onclick="scrollToSection('home')">Home</a></li>
+<li><a onclick="scrollToSection('about')">About</a></li>
+<li><a onclick="scrollToSection('services')">Services</a></li>
+<li><a onclick="scrollToSection('contact')">Contact</a></li>
+</ul>
+</div>
+</nav>
+
+<div class="hero-section" id="home">
+<h1 class="text-6xl font-bold mb-6">Welcome to MoodTunes</h1>
+<p class="max-w-3xl mx-auto text-xl mb-4">Music has the power to change how we feel. MoodTunes helps you discover the perfect songs that match your current mood.</p>
+<img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80" alt="Music" class="hero-image">
+</div>
+
+<div class="about-section" id="about">
+<div class="max-w-6xl mx-auto">
+<h2 class="text-5xl font-bold text-center mb-12 gradient-text">About MoodTunes</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+<img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80" alt="About" class="rounded-2xl shadow-2xl w-full">
+<div class="space-y-6">
+<h3 class="text-3xl font-bold text-gray-800">Our Mission</h3>
+<p class="text-gray-700 text-lg">At MoodTunes, we believe music is the universal language of emotions. Our mission is to connect people with the perfect soundtrack for every moment.</p>
+<p class="text-gray-700 text-lg">With 100+ curated tracks across 6 mood categories, we help you discover music that resonates with your soul.</p>
+<div class="grid grid-cols-3 gap-4 pt-6">
+<div class="text-center p-4 bg-white rounded-xl shadow-md"><div class="text-3xl font-bold gradient-text">100+</div><div class="text-gray-600 text-sm">Songs</div></div>
+<div class="text-center p-4 bg-white rounded-xl shadow-md"><div class="text-3xl font-bold gradient-text">6</div><div class="text-gray-600 text-sm">Moods</div></div>
+<div class="text-center p-4 bg-white rounded-xl shadow-md"><div class="text-3xl font-bold gradient-text">∞</div><div class="text-gray-600 text-sm">Vibes</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="max-w-6xl mx-auto px-6 py-16">
+<div class="mb-12 relative">
+<span class="search-icon">🔍</span>
+<input type="text" id="searchInput" placeholder="Search songs or artists..." class="w-full px-4 py-4 pl-14 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-purple-500 text-lg">
+<div id="searchResults" class="mt-4"></div>
+</div>
+
+<h2 class="text-4xl font-bold text-center mb-12 gradient-text" id="services">Our Services</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+<div class="service-card" onclick="setMode('simple')">
+<img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80" class="service-image" alt="Mood Selection">
+<div class="text-5xl mb-4">🎭</div>
+<h3 class="text-2xl font-bold mb-3">Mood Selection</h3>
+<p class="text-gray-600 text-lg">Choose from preset moods for instant recommendations</p>
+</div>
+<div class="service-card" onclick="setMode('advanced')">
+<img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400&q=80" class="service-image" alt="Advanced Search">
+<div class="text-5xl mb-4">🎚️</div>
+<h3 class="text-2xl font-bold mb-3">Advanced Search</h3>
+<p class="text-gray-600 text-lg">Fine-tune energy and valence with sliders</p>
+</div>
+<div class="service-card" onclick="randomize()">
+<img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&q=80" class="service-image" alt="Surprise Me">
+<div class="text-5xl mb-4">🎲</div>
+<h3 class="text-2xl font-bold mb-3">Surprise Me</h3>
+<p class="text-gray-600 text-lg">Get random recommendations</p>
+</div>
+</div>
+
+<div id="simpleMode" style="display:none">
+<h2 class="text-5xl font-bold mb-10 text-center gradient-text">✨ How are you feeling?</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+<button onclick="selectMood('happy')" class="mood-btn bg-yellow-400 p-10 rounded-2xl shadow-lg">
+<div class="text-6xl mb-3">😊</div>
+<div class="font-bold text-2xl text-gray-800">Happy</div>
+</button>
+<button onclick="selectMood('sad')" class="mood-btn bg-blue-400 p-10 rounded-2xl text-white shadow-lg">
+<div class="text-6xl mb-3">🥺</div>
+<div class="font-bold text-2xl">Sad</div>
+</button>
+<button onclick="selectMood('energetic')" class="mood-btn bg-red-400 p-10 rounded-2xl text-white shadow-lg">
+<div class="text-6xl mb-3">⚡</div>
+<div class="font-bold text-2xl">Energetic</div>
+</button>
+<button onclick="selectMood('calm')" class="mood-btn bg-green-400 p-10 rounded-2xl text-white shadow-lg">
+<div class="text-6xl mb-3">😌</div>
+<div class="font-bold text-2xl">Calm</div>
+</button>
+<button onclick="selectMood('romantic')" class="mood-btn bg-pink-400 p-10 rounded-2xl text-white shadow-lg">
+<div class="text-6xl mb-3">💕</div>
+<div class="font-bold text-2xl">Romantic</div>
+</button>
+<button onclick="selectMood('angry')" class="mood-btn bg-orange-400 p-10 rounded-2xl text-white shadow-lg">
+<div class="text-6xl mb-3">😡</div>
+<div class="font-bold text-2xl">Angry</div>
+</button>
+</div>
+</div>
+
+<div id="advancedMode" style="display:none">
+<div class="bg-white rounded-2xl p-10 shadow-xl">
+<h2 class="text-4xl font-bold mb-10 text-center gradient-text">⚡ Customize Your Vibe</h2>
+<div class="space-y-10">
+<div>
+<label class="block mb-4 font-semibold text-xl">⚡ Energy: <span id="energyValue" class="text-purple-600">50</span>%</label>
+<input type="range" id="energySlider" min="0" max="100" value="50" class="w-full h-3 rounded-lg cursor-pointer" style="accent-color:#667eea">
+</div>
+<div>
+<label class="block mb-4 font-semibold text-xl">💖 Positivity: <span id="valenceValue" class="text-pink-600">50</span>%</label>
+<input type="range" id="valenceSlider" min="0" max="100" value="50" class="w-full h-3 rounded-lg cursor-pointer" style="accent-color:#ec4899">
+</div>
+<button onclick="advancedSearch()" class="w-full py-5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-bold text-2xl hover:opacity-90 transition shadow-lg">🎵 Find Songs</button>
+</div>
+</div>
+</div>
+
+<div id="recommendations"></div>
+<div id="favorites"></div>
+</div>
+
+<div class="contact-section" id="contact">
+<div class="max-w-6xl mx-auto">
+<h2 class="text-5xl font-bold text-center mb-6">Get In Touch</h2>
+<p class="text-center text-xl mb-12 opacity-90">We'd love to hear from you!</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="contact-card">
+<div class="text-6xl mb-4">📧</div>
+<h3 class="text-2xl font-bold mb-2">Email</h3>
+<p class="opacity-80 text-lg">hello@moodtunes.com</p>
+</div>
+<div class="contact-card">
+<div class="text-6xl mb-4">📍</div>
+<h3 class="text-2xl font-bold mb-2">Location</h3>
+<p class="opacity-80 text-lg">San Francisco, CA</p>
+</div>
+<div class="contact-card">
+<div class="text-6xl mb-4">🌐</div>
+<h3 class="text-2xl font-bold mb-2">Social</h3>
+<p class="opacity-80 text-lg">@moodtunes</p>
+</div>
+</div>
+<p class="mt-12 text-center opacity-70 text-lg">© 2025 MoodTunes. Made with ❤️ and powered by RL</p>
+</div>
+</div>
+
+<script>
+// ==================== REINFORCEMENT LEARNING ENGINE ====================
+// Q-Learning Parameters
+const RL_CONFIG = {
+   LEARNING_RATE: 0.1,
+   DISCOUNT_FACTOR: 0.9,
+   EPSILON: 1.0,
+   EPSILON_MIN: 0.1,
+   EPSILON_DECAY: 0.95
+};
+
+// RL State
+let qTable = {};
+let epsilon = RL_CONFIG.EPSILON;
+let rlStats = {
+   totalActions: 0,
+   totalReward: 0,
+   explorations: 0,
+   exploitations: 0
+};
+
+// Song Database
+const db=[
+{id:1,song:"Happy",artist:"Pharrell Williams",mood:"happy",energy:.8,valence:.95},
+{id:2,song:"Good Vibrations",artist:"The Beach Boys",mood:"happy",energy:.7,valence:.9},
+{id:3,song:"Walking on Sunshine",artist:"Katrina & the Waves",mood:"happy",energy:.85,valence:.92},
+{id:4,song:"Don't Stop Me Now",artist:"Queen",mood:"happy",energy:.9,valence:.88},
+{id:5,song:"I Got You",artist:"James Brown",mood:"happy",energy:.82,valence:.91},
+{id:6,song:"Can't Stop the Feeling",artist:"Justin Timberlake",mood:"happy",energy:.83,valence:.93},
+{id:7,song:"Shake It Off",artist:"Taylor Swift",mood:"happy",energy:.84,valence:.91},
+{id:8,song:"24K Magic",artist:"Bruno Mars",mood:"happy",energy:.86,valence:.87},
+{id:9,song:"September",artist:"Earth Wind & Fire",mood:"happy",energy:.79,valence:.94},
+{id:10,song:"Mr. Blue Sky",artist:"ELO",mood:"happy",energy:.77,valence:.93},
+{id:11,song:"Someone Like You",artist:"Adele",mood:"sad",energy:.3,valence:.2},
+{id:12,song:"Tears in Heaven",artist:"Eric Clapton",mood:"sad",energy:.25,valence:.18},
+{id:13,song:"Hurt",artist:"Johnny Cash",mood:"sad",energy:.35,valence:.15},
+{id:14,song:"The Scientist",artist:"Coldplay",mood:"sad",energy:.4,valence:.22},
+{id:15,song:"Mad World",artist:"Gary Jules",mood:"sad",energy:.28,valence:.19},
+{id:16,song:"Fix You",artist:"Coldplay",mood:"sad",energy:.38,valence:.24},
+{id:17,song:"Hallelujah",artist:"Jeff Buckley",mood:"sad",energy:.3,valence:.22},
+{id:18,song:"Yesterday",artist:"The Beatles",mood:"sad",energy:.32,valence:.2},
+{id:19,song:"The Night We Met",artist:"Lord Huron",mood:"sad",energy:.31,valence:.19},
+{id:20,song:"Everybody Hurts",artist:"R.E.M.",mood:"sad",energy:.26,valence:.2},
+{id:21,song:"Eye of the Tiger",artist:"Survivor",mood:"energetic",energy:.95,valence:.75},
+{id:22,song:"Thunder",artist:"Imagine Dragons",mood:"energetic",energy:.92,valence:.7},
+{id:23,song:"Uptown Funk",artist:"Bruno Mars",mood:"energetic",energy:.88,valence:.85},
+{id:24,song:"Can't Hold Us",artist:"Macklemore",mood:"energetic",energy:.93,valence:.8},
+{id:25,song:"Titanium",artist:"David Guetta",mood:"energetic",energy:.9,valence:.72},
+{id:26,song:"Stronger",artist:"Kanye West",mood:"energetic",energy:.91,valence:.76},
+{id:27,song:"We Will Rock You",artist:"Queen",mood:"energetic",energy:.94,valence:.78},
+{id:28,song:"Believer",artist:"Imagine Dragons",mood:"energetic",energy:.91,valence:.69},
+{id:29,song:"Levels",artist:"Avicii",mood:"energetic",energy:.92,valence:.82},
+{id:30,song:"Lose Yourself",artist:"Eminem",mood:"energetic",energy:.94,valence:.75},
+{id:31,song:"Weightless",artist:"Marconi Union",mood:"calm",energy:.15,valence:.5},
+{id:32,song:"Clair de Lune",artist:"Debussy",mood:"calm",energy:.2,valence:.55},
+{id:33,song:"River Flows in You",artist:"Yiruma",mood:"calm",energy:.18,valence:.52},
+{id:34,song:"Holocene",artist:"Bon Iver",mood:"calm",energy:.25,valence:.48},
+{id:35,song:"Breathe Me",artist:"Sia",mood:"calm",energy:.22,valence:.45},
+{id:36,song:"Banana Pancakes",artist:"Jack Johnson",mood:"calm",energy:.21,valence:.62},
+{id:37,song:"Sunset Lover",artist:"Petit Biscuit",mood:"calm",energy:.19,valence:.58},
+{id:38,song:"The A Team",artist:"Ed Sheeran",mood:"calm",energy:.23,valence:.47},
+{id:39,song:"Intro",artist:"The xx",mood:"calm",energy:.16,valence:.49},
+{id:40,song:"Flightless Bird",artist:"Iron & Wine",mood:"calm",energy:.2,valence:.51},
+{id:41,song:"Perfect",artist:"Ed Sheeran",mood:"romantic",energy:.45,valence:.85},
+{id:42,song:"Thinking Out Loud",artist:"Ed Sheeran",mood:"romantic",energy:.5,valence:.82},
+{id:43,song:"All of Me",artist:"John Legend",mood:"romantic",energy:.48,valence:.8},
+{id:44,song:"A Thousand Years",artist:"Christina Perri",mood:"romantic",energy:.42,valence:.83},
+{id:45,song:"At Last",artist:"Etta James",mood:"romantic",energy:.44,valence:.84},
+{id:46,song:"Unchained Melody",artist:"Righteous Brothers",mood:"romantic",energy:.46,valence:.81},
+{id:47,song:"Can't Help Falling in Love",artist:"Elvis",mood:"romantic",energy:.38,valence:.86},
+{id:48,song:"Your Song",artist:"Elton John",mood:"romantic",energy:.47,valence:.79},
+{id:49,song:"Endless Love",artist:"Diana Ross",mood:"romantic",energy:.43,valence:.82},
+{id:50,song:"Make You Feel My Love",artist:"Adele",mood:"romantic",energy:.4,valence:.78},
+{id:51,song:"Break Stuff",artist:"Limp Bizkit",mood:"angry",energy:.95,valence:.25},
+{id:52,song:"Killing in the Name",artist:"RATM",mood:"angry",energy:.98,valence:.2},
+{id:53,song:"Bodies",artist:"Drowning Pool",mood:"angry",energy:.96,valence:.22},
+{id:54,song:"Down with the Sickness",artist:"Disturbed",mood:"angry",energy:.94,valence:.18},
+{id:55,song:"Chop Suey!",artist:"System of a Down",mood:"angry",energy:.92,valence:.24},
+{id:56,song:"Enter Sandman",artist:"Metallica",mood:"angry",energy:.93,valence:.21},
+{id:57,song:"Master of Puppets",artist:"Metallica",mood:"angry",energy:.97,valence:.19},
+{id:58,song:"Walk",artist:"Pantera",mood:"angry",energy:.95,valence:.23},
+{id:59,song:"Toxicity",artist:"System of a Down",mood:"angry",energy:.91,valence:.26},
+{id:60,song:"Psychosocial",artist:"Slipknot",mood:"angry",energy:.97,valence:.19}
+];
+
+// Initialize Q-Table
+function initQTable() {
+   const moods = ['happy', 'sad', 'energetic', 'calm', 'romantic', 'angry'];
+   moods.forEach(mood => {
+       qTable[mood] = {};
+       db.filter(s => s.mood === mood).forEach(song => {
+           qTable[mood][song.id] = 0;
+       });
+   });
+   console.log('✅ Q-Table initialized');
+}
+
+// RL ALGORITHM: Q-Learning Update
+function updateQValue(mood, songId, reward) {
+   const currentQ = qTable[mood][songId] || 0;
+   const nextStateQValues = Object.values(qTable[mood] || {});
+   const maxNextQ = nextStateQValues.length > 0 ? Math.max(...nextStateQValues) : 0;
+
+   const newQ = currentQ + RL_CONFIG.LEARNING_RATE * (
+       reward + RL_CONFIG.DISCOUNT_FACTOR * maxNextQ - currentQ
+   );
+
+   qTable[mood][songId] = newQ;
+
+   rlStats.totalActions++;
+   rlStats.totalReward += reward;
+
+   epsilon = Math.max(RL_CONFIG.EPSILON_MIN, epsilon * RL_CONFIG.EPSILON_DECAY);
+
+   console.log('📊 Q-Update:', {
+       song: db.find(s => s.id === songId)?.song,
+       oldQ: currentQ.toFixed(3),
+       newQ: newQ.toFixed(3),
+       reward: reward
+   });
+}
+
+// Get RL-powered recommendations - SORTED BY Q-VALUE
+function getRecommendationsRL(mood, count = 8) {
+   const moodSongs = db.filter(s => s.mood === mood);
+
+   console.log('🎵 Getting RL recommendations for mood:', mood);
+
+   // Sort songs by Q-value (highest first)
+   const sortedByQ = moodSongs.map(song => ({
+       song: song,
+       qValue: qTable[mood][song.id] || 0
+   })).sort((a, b) => b.qValue - a.qValue);
+
+   console.log('📈 Top songs by Q-value:', sortedByQ.slice(0, count).map(s => ({
+       song: s.song.song,
+       Q: s.qValue.toFixed(3)
+   })));
+
+   // Take top 'count' songs based on Q-values
+   const recommendations = sortedByQ.slice(0, count).map(item => item.song);
+
+   return recommendations;
+}
+
+// ==================== UI FUNCTIONS ====================
+let favs = [];
+let currentMood = null;
+let lastRecommendations = [];
+
+function scrollToSection(sectionId) {
+   const element = document.getElementById(sectionId);
+   if (element) {
+       element.scrollIntoView({behavior: 'smooth', block: 'start'});
+   }
+}
+
+function setMode(mode) {
+   document.getElementById('simpleMode').style.display = mode === 'simple' ? 'block' : 'none';
+   document.getElementById('advancedMode').style.display = mode === 'advanced' ? 'block' : 'none';
+   setTimeout(() => {
+       document.getElementById(mode + 'Mode').scrollIntoView({behavior: 'smooth', block: 'center'});
+   }, 100);
+}
+
+function selectMood(mood) {
+   console.log('🎭 User selected mood:', mood);
+   currentMood = mood;
+   lastRecommendations = getRecommendationsRL(mood);
+   showRecs(lastRecommendations);
+}
+
+function advancedSearch() {
+   const e = document.getElementById('energySlider').value / 100;
+   const v = document.getElementById('valenceSlider').value / 100;
+   const scored = db.map(s => ({
+       ...s,
+       score: Math.sqrt((s.energy - e) ** 2 + (s.valence - v) ** 2)
+   })).sort((a, b) => a.score - b.score).slice(0, 8);
+
+   currentMood = 'custom';
+   lastRecommendations = scored;
+   showRecs(scored);
+}
+
+function randomize() {
+   const random = [...db].sort(() => Math.random() - 0.5).slice(0, 8);
+   currentMood = 'random';
+   lastRecommendations = random;
+   showRecs(random);
+   setTimeout(() => {
+       document.getElementById('recommendations').scrollIntoView({behavior: 'smooth'});
+   }, 100);
+}
+
+function showRecs(songs) {
+   const recsHtml = '<div class="bg-white rounded-2xl p-8 shadow-2xl mt-12">' +
+       '<h2 class="text-4xl font-bold mb-8 text-center gradient-text">🎵 Recommended</h2>' +
+       '<div class="space-y-4">' +
+       songs.map(s => {
+           const qVal = currentMood && qTable[currentMood] ? (qTable[currentMood][s.id] || 0).toFixed(2) : '0.00';
+           return '<div class="flex items-center justify-between p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl hover:shadow-xl transition">' +
+               '<div class="flex-1">' +
+               '<div class="font-bold text-xl text-gray-800">' + s.song + '</div>' +
+               '<div class="text-purple-600 mt-1 text-lg">' + s.artist + '</div>' +
+               '<div class="flex gap-2 mt-3 flex-wrap">' +
+               '<span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-bold">' + s.mood + '</span>' +
+               '<span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-bold">⚡' + (s.energy * 100).toFixed(0) + '%</span>' +
+               '<span class="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm font-bold">💖' + (s.valence * 100).toFixed(0) + '%</span>' +
+               '<span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-bold">Q: ' + qVal + '</span>' +
+               '</div>' +
+               '</div>' +
+               '<button onclick="toggleFav(' + s.id + ')" class="text-4xl hover:scale-125 transition ml-4">' +
+               (favs.includes(s.id) ? '❤️' : '🤍') +
+               '</button>' +
+               '</div>';
+       }).join('') +
+       '</div></div>';
+
+   document.getElementById('recommendations').innerHTML = recsHtml;
+   setTimeout(() => {
+       document.getElementById('recommendations').scrollIntoView({behavior: 'smooth', block: 'center'});
+   }, 100);
+}
+
+function toggleFav(id) {
+   const wasLiked = favs.includes(id);
+
+   if (wasLiked) {
+       favs = favs.filter(f => f !== id);
+       console.log('💔 Unliked song ID:', id);
+       if (currentMood && currentMood !== 'custom' && currentMood !== 'random') {
+           updateQValue(currentMood, id, -0.5);
+       }
+   } else {
+       favs.push(id);
+       console.log('❤️ Liked song ID:', id);
+       if (currentMood && currentMood !== 'custom' && currentMood !== 'random') {
+           updateQValue(currentMood, id, 1.0);
+       }
+   }
+
+   showFavs();
+
+   if (lastRecommendations.length > 0) {
+       showRecs(lastRecommendations);
+   }
+}
+
+function showFavs() {
+   if (!favs.length) {
+       document.getElementById('favorites').innerHTML = '';
+       return;
+   }
+
+   const favSongs = favs.map(id => db.find(s => s.id === id)).filter(Boolean);
+   const favsHtml = '<div class="mt-12 bg-white rounded-2xl p-8 shadow-2xl">' +
+       '<h2 class="text-4xl font-bold mb-6 text-center gradient-text">❤️ Favorites (' + favs.length + ')</h2>' +
+       '<div class="grid grid-cols-1 md:grid-cols-3 gap-6">' +
+       favSongs.map(s =>
+           '<div class="p-6 bg-purple-50 rounded-xl hover:shadow-lg transition">' +
+           '<div class="font-bold text-xl text-gray-800">' + s.song + '</div>' +
+           '<div class="text-sm text-purple-600 mt-2 text-lg">' + s.artist + '</div>' +
+           '<span class="inline-block mt-3 px-3 py-1 bg-purple-200 text-purple-800 rounded-full text-sm font-bold">' + s.mood + '</span>' +
+           '</div>'
+       ).join('') +
+       '</div></div>';
+
+   document.getElementById('favorites').innerHTML = favsHtml;
+}
+
+document.getElementById('searchInput').addEventListener('input', e => {
+   const query = e.target.value.toLowerCase();
+   if (!query) {
+       document.getElementById('searchResults').innerHTML = '';
+       return;
+   }
+
+   const results = db.filter(s =>
+       s.song.toLowerCase().includes(query) ||
+       s.artist.toLowerCase().includes(query)
+   );
+
+   if (results.length) {
+       document.getElementById('searchResults').innerHTML =
+           '<div class="bg-white rounded-xl p-4 shadow-2xl max-h-96 overflow-y-auto">' +
+           results.slice(0, 10).map(s =>
+               '<div class="p-4 hover:bg-purple-50 rounded-lg cursor-pointer transition">' +
+               '<div class="font-semibold text-lg text-gray-800">' + s.song + '</div>' +
+               '<div class="text-sm text-purple-600 mt-1">' + s.artist + '</div>' +
+               '</div>'
+           ).join('') +
+           '</div>';
+   } else {
+       document.getElementById('searchResults').innerHTML =
+           '<div class="bg-white rounded-xl p-6 shadow-xl text-center text-gray-500 text-lg">No results for "' + query + '"</div>';
+   }
+});
+
+document.getElementById('energySlider').addEventListener('input', e => {
+   document.getElementById('energyValue').textContent = e.target.value;
+});
+
+document.getElementById('valenceSlider').addEventListener('input', e => {
+   document.getElementById('valenceValue').textContent = e.target.value;
+});
+
+initQTable();
+
+console.log('🤖 MoodTunes RL System Initialized');
+console.log('📊 RL Parameters:', RL_CONFIG);
+console.log('🎵 Total Songs:', db.length);
+console.log('🧠 Q-Table Size:', Object.keys(qTable).length + ' moods');
+</script>
+</body>
+</html>
