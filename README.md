@@ -68,12 +68,6 @@ Each song contains:
 
 ---
 
-## 📸 Screenshots
-
-*(Add screenshots here after uploading them to GitHub.)*
-
----
-
 ## 🚀 Future Improvements
 
 - Spotify API integration
